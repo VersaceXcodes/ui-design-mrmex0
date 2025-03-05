@@ -1,0 +1,39 @@
+name: Deploy to fly.io
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    name: Deploy app
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - name: Check for FLY_API_TOKEN
+        run: |
+          if [ -z "${{ secrets.FLY_API_TOKEN }}" ]; then
+            echo "::error::FLY_API_TOKEN is not set in repository secrets"
+            echo "Please add your Fly.io API token as a repository secret named FLY_API_TOKEN"
+            echo "You can create a token at https://fly.io/user/personal_access_tokens"
+            echo "Then add it in your repository settings: Settings > Secrets and variables > Actions > New repository secret"
+            exit 1
+          fi
+      - name: Create fly app if not exists
+        run: |
+          set +e
+          flyctl apps list | grep ui-design-mrmex0
+          if [ $? -ne 0 ]; then
+            set -e
+            echo "Creating new Fly app: ui-design-mrmex0"
+            flyctl apps create ui-design-mrmex0 --org personal
+          else
+            echo "Fly app ui-design-mrmex0 already exists"
+          fi
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+      - name: Deploy to fly.io
+        run: flyctl deploy --remote-only --strategy immediate
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
