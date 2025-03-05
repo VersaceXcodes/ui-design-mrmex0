@@ -1,0 +1,12 @@
+{
+  "name": "ui-design-mrmex0",
+  "version": "1.0.0",
+  "description": "Generated project for ui-design-mrmex0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "engines": {
+    "node": ">=14"
+  }
+}
